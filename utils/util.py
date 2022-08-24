@@ -48,7 +48,6 @@ def convert_to_numeric(all_cases):
         for sub_seq in all_codes:
             sub_list=list()
             for code_ in sub_seq:
-                code = code_[:3]
                 if code not in feat_dict.keys():
                     feat_dict[code] = i
                     i += 1
