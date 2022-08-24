@@ -58,26 +58,19 @@ def get_dx_list(patient_x, X_DXVER, mapping, DX_col):
     X = list()
     for date in patient_x.SVCDATE.unique():
         record = patient_x[patient_x.SVCDATE == date]
-        if len(record) == 1:
-            x_dxs = sum(record[DX_col].dropna(axis=1).values.tolist(), [])
+        
+        x_dxs = sum(record[DX_col].values.tolist(), []) 
+        x_dxs = list(map(str, x_dxs))
+        x_dxs = [x for x in x_dxs if x != 'nan']
 
-            if X_DXVER == '0':
-                X.append(x_dxs)
-            else:
-                x_dxs_mapped = map_function(x_dxs, mapping)
-                if len(x_dxs_mapped) != 0:
-                    X.append(x_dxs_mapped)
+        if X_DXVER == '0':
+            x_dxs = list(set([x[:3] for x in x_dxs]))
+            X.append(x_dxs)
         else:
-            x_dxs = sum(record[DX_col].values.tolist(), []) 
-            x_dxs = list(map(str, list(set(x_dxs))))
-            x_dxs = [x for x in x_dxs if x != 'nan']
-
-            if X_DXVER == '0':
-                X.append(x_dxs)
-            else:
-                x_dxs_mapped = map_function(x_dxs, mapping)
-                if len(x_dxs_mapped) != 0:
-                    X.append(x_dxs_mapped)    
+            x_dxs_mapped = map_function(x_dxs, mapping)
+            x_dxs_mapped = list(set([x[:3] for x in x_dxs_mapped]))
+            if len(x_dxs_mapped) != 0:
+                X.append(x_dxs_mapped)
                     
     return X
     
