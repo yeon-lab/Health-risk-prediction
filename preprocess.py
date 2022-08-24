@@ -120,6 +120,8 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
             for dx in dxs:
                 if not pd.isnull(dx):
                     is_case, target = check_target(dx, target_dict[DXVER])
+                    if is_case:
+                        break
     
             if is_case and i < n_visits:
                 break
