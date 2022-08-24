@@ -154,8 +154,8 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
             control_group_ids.append(id_)
             
         
-    np.save(os.path.join(config.save_dir, 'control_group_ids_{}'.format(config.fold_id)), control_group_ids)  
-    np.save(os.path.join(config.save_dir, 'case_group_{}'.format(config.fold_id)), case_group) 
+    np.save(os.path.join(config.save_dir, 'control_group', control_group_ids)  
+    np.save(os.path.join(config.save_dir, 'case_group', case_group) 
     
     
 
