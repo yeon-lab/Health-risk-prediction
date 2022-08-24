@@ -165,8 +165,6 @@ if __name__ == "__main__":
     args.add_argument('--path', default = './data/',type=str)
     args.add_argument('--save_dir', default = './data_npy/',type=str)
     args.add_argument('--n_visits', default = 10,type=int)
-    args.add_argument('--n_split', type=int)
-    args.add_argument('--fold_id', type=int)
     
     config = args.parse_args()
     
@@ -197,14 +195,8 @@ if __name__ == "__main__":
     df = load_dataset(config.path)
 
     all_ids = df.ENROLID.unique()
-    batch_size = len(all_ids)//config.n_split
-    
-    if config.fold_id == config.n_split-1:
-        batch_ids= all_ids[config.fold_id*batch_size:]
-    else:
-        batch_ids= all_ids[config.fold_id*batch_size : (1+config.fold_id)*batch_size]
 
-    print(f'all unique id: {len(all_ids)}, n split: {config.n_split}, batch size: {batch_size}, batch size: {len(batch_ids)}')
+    print(f'all unique id: {len(all_ids)}')
     
-    get_cases(df, batch_ids, target_dict, mapping, config)
+    get_cases(df, all_ids, target_dict, mapping, config)
  
