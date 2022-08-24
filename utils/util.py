@@ -33,29 +33,25 @@ def load_data(path = './data_npy/'):
     return all_cases, all_controls
     
 
-
 def convert_to_numeric(all_cases):
-    feat_dict = {}
-    i = 0
-    for sublist in all_cases['X']:
-        codes = sum(sublist , [])
-        for code in codes:
-            if code not in feat_dict.keys():
-                feat_dict[code] = i
-                i += 1
-    
     y_dict_lst = list(set(all_cases['Y']))
     y_dict = {y_dict_lst[i]: i for i in range(len(y_dict_lst))}
 
     print(all_cases['Y'].value_counts())
     print(y_dict)
-    
+
+    feat_dict = {}
+    i = 0
     for idx in all_cases['X'].index:
         all_codes = all_cases['X'][idx]
         code_list = list()
         for sub_seq in all_codes:
             sub_list=list()
-            for code in sub_seq:
+            for code_ in sub_seq:
+                code = code_[:3]
+                if code not in feat_dict.keys():
+                    feat_dict[code] = i
+                    i += 1
                 sub_list.append(feat_dict[code])
             code_list.append(sub_list)
         all_cases['X'][idx] = code_list
