@@ -21,6 +21,7 @@ class Trainer(BaseTrainer):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
         self.config = config
         self.batch_size = config["data_loader"]["args"]["batch_size"]
+        self.n_class = config['hyper_params']['n_class']
         
         self.train_x = train_data['X'].tolist()
         self.train_y = train_data['Y'].tolist()
@@ -68,7 +69,10 @@ class Trainer(BaseTrainer):
             y = self.train_y[index*self.batch_size:(index+1)*self.batch_size]
             x, x_lengths = self.model.padMatrixWithoutTime(seqs=x)
             x_tensor = torch.from_numpy(x).float().to(self.device)
-            y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
+            if self.n_class == 2:
+                y_tensor = torch.from_numpy(np.array(y)).float().to(self.device)
+            else:
+                y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
             pred = self.model(x_tensor)
             pred = pred.squeeze(1)
             loss = self.criterion(pred, y_tensor)
@@ -90,7 +94,7 @@ class Trainer(BaseTrainer):
 
             
         for met in self.metric_ftns:
-            self.train_metrics.update(met.__name__, met(trgs, outs))
+            self.train_metrics.update(met.__name__, met(trgs, outs, self.n_class))
         log = self.train_metrics.result()
 
         if self.do_validation:
@@ -117,7 +121,10 @@ class Trainer(BaseTrainer):
                 y = self.valid_y[index*self.batch_size:(index+1)*self.batch_size]
                 x, x_lengths = self.model.padMatrixWithoutTime(seqs=x)
                 x_tensor = torch.from_numpy(x).float().to(self.device)
-                y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
+                if self.n_class == 2:
+                    y_tensor = torch.from_numpy(np.array(y)).float().to(self.device)
+                else:
+                    y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
                 pred = self.model(x_tensor)
                 pred = pred.squeeze(1)
                 loss = self.criterion(pred, y_tensor)
@@ -127,7 +134,7 @@ class Trainer(BaseTrainer):
                 trgs = torch.cat([trgs, y_tensor])
                 
         for met in self.metric_ftns:
-            self.valid_metrics.update(met.__name__, met(trgs, outs))
+            self.valid_metrics.update(met.__name__, met(trgs, outs, self.n_class))
 
         return self.valid_metrics.result()
         
@@ -148,7 +155,10 @@ class Trainer(BaseTrainer):
                 y = self.test_ICD9_y[index*self.batch_size:(index+1)*self.batch_size]
                 x, x_lengths = self.model.padMatrixWithoutTime(seqs=x)
                 x_tensor = torch.from_numpy(x).float().to(self.device)
-                y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
+                if self.n_class == 2:
+                    y_tensor = torch.from_numpy(np.array(y)).float().to(self.device)
+                else:
+                    y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
                 pred = self.model(x_tensor)
                 pred = pred.squeeze(1)
                 loss = self.criterion(pred, y_tensor)
@@ -158,7 +168,7 @@ class Trainer(BaseTrainer):
                 trgs = torch.cat([trgs, y_tensor])
                 
         for met in self.metric_ftns:
-            self.test_ICD9_metrics.update(met.__name__, met(trgs, outs))
+            self.test_ICD9_metrics.update(met.__name__, met(trgs, outs, self.n_class))
         test_ICD9_log = self.test_ICD9_metrics.result()
         
         ###############################################################################
@@ -172,7 +182,10 @@ class Trainer(BaseTrainer):
                 y = self.test_ICD10_y[index*self.batch_size:(index+1)*self.batch_size]
                 x, x_lengths = self.model.padMatrixWithoutTime(seqs=x)
                 x_tensor = torch.from_numpy(x).float().to(self.device)
-                y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
+                if self.n_class == 2:
+                    y_tensor = torch.from_numpy(np.array(y)).float().to(self.device)
+                else:
+                    y_tensor = torch.from_numpy(np.array(y)).long().to(self.device)
                 pred = self.model(x_tensor)
                 pred = pred.squeeze(1)
                 loss = self.criterion(pred, y_tensor)
@@ -182,7 +195,7 @@ class Trainer(BaseTrainer):
                 trgs = torch.cat([trgs, y_tensor])
             
         for met in self.metric_ftns:
-            self.test_ICD10_metrics.update(met.__name__, met(trgs, outs))
+            self.test_ICD10_metrics.update(met.__name__, met(trgs, outs, self.n_class))
         test_ICD10_log = self.test_ICD10_metrics.result()
 
         
