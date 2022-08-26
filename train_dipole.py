@@ -70,10 +70,10 @@ def main(config, dataset):
                       criterion, 
                       metrics,
                       config=config,
-                      train_data=dataset['train_case'],
-                      valid_data=dataset['valid_case'],
-                      test_data_ICD9=dataset['test_case_ICD9'],
-                      test_data_ICD10=dataset['test_case_ICD10']
+                      train_data=dataset['train'],
+                      valid_data=dataset['valid'],
+                      test_data_ICD9=dataset['test_ICD9'],
+                      test_data_ICD10=dataset['test_ICD10']
                       )
 
     trainer.train()
@@ -85,17 +85,17 @@ if __name__ == '__main__':
                       help='config file path (default: None)')
     args.add_argument('-d', '--device', default="0", type=str,
                       help='indices of GPUs to enable (default: all)')
-    args.add_argument('-da', '--np_data_dir', default='./data_npy/', type=str,
+    args.add_argument('--np_data_dir', type=str,
                       help='Directory containing numpy files')
+    args.add_argument('--data_file', type=str)
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
 
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
-
     args2 = args.parse_args()
-
     config = ConfigParser.from_args(args)
-    dataset, feat_dict, y_dict = init_data(args2.np_data_dir)
+    
+    dataset, feat_dict, y_dict = init_data(data_file = args2.data_file, npy_path=args2.np_data_dir)
     config['hyper_params']['n_feat'], config['hyper_params']['n_class'] = len(feat_dict.keys()), len(y_dict.keys())
 
     main(config, dataset)
