@@ -18,9 +18,9 @@
         }
     },
     "optimizer": {
-        "type": "Adadelta",
+        "type": "Adam",
         "args":{
-            "lr": 1.0,
+            "lr": 0.001,
             "weight_decay": 0.001
             }
     },
