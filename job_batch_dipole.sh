@@ -8,4 +8,4 @@
 module load python
 source activate local
 
-python train_dipole.py --config 'config_dipole.json' --np_data_dir "./data_npy_inpat/"
+python train_dipole.py --config 'config_dipole.json'
