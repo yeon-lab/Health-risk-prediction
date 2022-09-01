@@ -10,7 +10,8 @@ from tqdm import tqdm
 import os.path
 
 pd.set_option('display.max_columns', None)
-    
+SEED = 1111
+
 def load_raw(path='./data/'):
     outpatient_files = os.listdir(path)
 
@@ -42,7 +43,6 @@ def load_npy(path = './data_npy/'):
             if "control" in file:
                 control_list.append(os.path.join(root, file))
                 
-    all_controls = list()
     for i, (f_case, f_control) in enumerate(zip(case_list, control_list)):
         if i == 0:
             all_cases = np.load(f_case, allow_pickle=True).item()
@@ -76,17 +76,9 @@ def icd9_to_icd10(dx, mapping):
     else:
         print(dx,'not in dict')
         return None
-        
+
     return mapping[dx]
 
-def map_function(x_dxs, mapping):
-    map_list = list()
-    for x_dx in x_dxs:
-        mapped = icd9_to_icd10(x_dx, mapping)
-        if mapped is not None:
-            map_list.append(mapped)
-            
-    return map_list
 
 def get_dx_list(patient_x, X_DXVER, mapping, DX_col):
     X = list()
@@ -95,8 +87,13 @@ def get_dx_list(patient_x, X_DXVER, mapping, DX_col):
         x_dxs = sum(record[DX_col].values.tolist(), []) 
         x_dxs = list(map(str, x_dxs))
         x_dxs = [x for x in x_dxs if x != 'nan']
-        if X_DXVER != '0':
-            x_dxs = map_function(x_dxs, mapping)
+        if X_DXVER == '9':
+            x_dxs_ = list()
+            for x_dx in x_dxs:
+                mapped = icd9_to_icd10(x_dx, mapping)
+                if mapped is not None:
+                    x_dxs_.append(mapped)
+            x_dxs = x_dxs_
         x_dxs = list(set([x[:3] for x in x_dxs]))
         if len(x_dxs) != 0:
             X.append(x_dxs)
@@ -123,11 +120,10 @@ class Convert_to_numeric:
     
     def forward(self, all_data):
         control_y = 'Normal'
-        all_data['control_Y'] = [pd.NA for _ in range(len(all_data['X']))]
-        
         y_dict_lst = [control_y]+list(set(all_data['Y']))
         y_dict = {y_dict_lst[i]: i for i in range(len(y_dict_lst))}
 
+        all_data['control_Y'] = [pd.NA for _ in range(len(all_data['X']))]
         for idx in all_data['X'].index:
             case_dxs = all_data['X'][idx]
             control_dxs = all_data['control_X'][idx]
@@ -145,7 +141,7 @@ def set_input_data(df):
     case_df = df[['X','Y']]
     control_df = df[['control_X','control_Y']].dropna(axis=0)
     control_df.rename(columns={'control_X':'X', 'control_Y':'Y'}, inplace=True)
-    all_df = pd.concat([case_df, control_df], axis=0).sample(frac=1)
+    all_df = pd.concat([case_df, control_df], axis=0).sample(frac=1, random_state=SEED)
     print(all_df.Y.value_counts())
     print(f'# df: {len(df)}, # case: {len(case_df)}, # control: {len(control_df)}, # all: {len(all_df)}, DXVER: {df.DXVER.unique()}')
 
@@ -154,38 +150,43 @@ def set_input_data(df):
 def get_controls(all_cases, all_controls):
     all_controls = pd.DataFrame(all_controls)
     all_cases['control_X'] = [pd.NA for _ in range(len(all_cases['X']))]
-    for idx in tqdm(range(len(all_cases['X'])), total=len(all_cases['X'])):
-        n_visit = all_cases['n_visit'][idx]
-        DXVER = all_cases['DXVER'][idx]
-        indices = all_controls[(all_controls.n_visit >= n_visit) & (all_controls.DXVER == DXVER)].index
+    for case_idx in tqdm(range(len(all_cases['X'])), total=len(all_cases['X'])):
+        n_visit = all_cases['n_visit'][case_idx]
+        DXVER = all_cases['DXVER'][case_idx]
+        age = all_cases['age'][case_idx]
+        gender = all_cases['gender'][case_idx]
+        indices = all_controls[(all_controls.n_visit >= n_visit) & (all_controls.DXVER == DXVER) & (all_controls.age == age) & (gender)].index
         if len(indices) > 0:
             control_idx = indices[0]
-            all_cases['control_X'][idx] = all_controls.iloc[control_idx,:]['X'][:n_visit]
+            all_cases['control_X'][case_idx] = all_controls.loc[control_idx,'X'][:n_visit]
             all_controls = all_controls.drop(control_idx, axis = 0)
-            
+
     return all_cases
 
     
-def init_data(data_file, npy_path):
+def init_data(data_file, npy_path, config):
     if os.path.exists(data_file):
-        all_data = np.load(data_file, allow_pickle=True).item()
+        print('load existing data file')
+        all_data_ = np.load(data_file, allow_pickle=True).item()
     else:
+        print('No existing file. Save data file')
         all_cases, all_controls = load_npy(npy_path)
-        all_data = get_controls(all_cases, all_controls)
-        np.save(data_file, all_data) 
+        all_data_ = get_controls(all_cases, all_controls)
+        np.save(data_file, all_data_) 
         
-    all_data = pd.DataFrame(all_data)
-    all_data = all_data[all_data.n_visit < 100].reset_index(drop=True).to_dict('series')  
+    all_data_ = pd.DataFrame(all_data_)
+    all_data_9 = all_data_[(all_data_.DXVER == '9') & (all_data_.n_visit < config["hyper_params"]["max_visit"])]
+    all_data_10 = all_data_[all_data_.DXVER == '0']
+    all_data = pd.concat([all_data_9, all_data_10], axis=0).reset_index(drop=True).to_dict('series')  
     
     convert_numeric = Convert_to_numeric()
     all_data, feat_dict, y_dict = convert_numeric.forward(all_data)  
-    print('feat_dict:\n', feat_dict)
     print('y_dict:\n', y_dict)
-    df_data = pd.DataFrame(all_data).sample(frac=1)
+    df_data = pd.DataFrame(all_data).sample(frac=1, random_state=SEED)
     test_ICD10 = df_data[df_data.DXVER == '0']
-    ICD9 = df_data[df_data.DXVER == '9'].reset_index(drop=True)
+    ICD9 = df_data[df_data.DXVER == '9']
     test_ICD9 = ICD9.iloc[:len(test_ICD10),:]
-    trainset = ICD9.iloc[len(test_ICD10):,:].reset_index(drop=True)
+    trainset = ICD9.iloc[len(test_ICD10):,:]
     train = trainset.iloc[len(test_ICD10):,:]
     vaild = trainset.iloc[:len(test_ICD10),:]
     print('# ICD-9: {}, # ICD-9 train: {}, # ICD-9 valid: {}, # ICD-9 test: {}, # ICD-10 test: {}'.format(
