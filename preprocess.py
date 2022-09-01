@@ -5,7 +5,12 @@ from tqdm import tqdm
 import os 
 from utils.util import *
 
-def check_target(dx, target_dict):
+def check_target(dx, target_dict, DXVER, mapping):
+    if DXVER == '9':
+        dx = icd9_to_icd10(dx, mapping)
+        if dx is None:
+            return False, None
+            
     for key in target_dict.keys():
         for code in target_dict[key]:
             if dx.startswith(code):
@@ -13,7 +18,7 @@ def check_target(dx, target_dict):
     return False, None
     
 
-def get_cases(df, batch_ids, target_dict, mapping, config):
+def get_cases(df, batch_ids, target_dict, mapping, config, demo):
     n_visits = config.n_visits
 
     DX_col = [col for col in df.columns if 'DX' in col and col != 'DXVER']
@@ -25,7 +30,9 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
         'Y': [],
         'n_visit': [],
         'X_idx': [],
-        'Y_idx': []
+        'Y_idx': [],
+        'age': [],
+        'gender':[]
     }
 
     control_group = {
@@ -33,7 +40,9 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
         'DXVER': [],
         'X': [],
         'Y': [],
-        'n_visit': []
+        'n_visit': [],
+        'age': [],
+        'gender':[]
     }
     
     control_group_ids = []        
@@ -45,9 +54,6 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
             continue
         elif len(patient[patient.DXVER == '0'].SVCDATE.unique()) < n_visits:
             continue
-        
-        if (patient.SVCDATE[-1:].item()-patient.SVCDATE[n_visits-1]).days < 365:
-            continue
             
         for i, (_, row) in enumerate(patient.iterrows()):
             DXVER = row['DXVER']
@@ -55,7 +61,7 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
             dxs = list(row[DX_col])
             for dx in dxs:
                 if not pd.isnull(dx):
-                    is_case, target = check_target(dx, target_dict[DXVER])
+                    is_case, target = check_target(dx, target_dict, DXVER, mapping)
                     if is_case:
                         break
     
@@ -83,6 +89,10 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
                                     case_group['X_idx'].append(X_idx)
                                     case_group['Y_idx'].append(Y_idx)
                                     case_group['n_visit'].append(len(X))
+                                    
+                                    patient_demo = demo[demo.ENROLID == int(id_)]
+                                    case_group['age'].append(patient_demo['DOBYR'].item())
+                                    case_group['gender'].append(patient_demo['SEX'].item())
 
                     if is_saved:
                         break
@@ -100,6 +110,10 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
                     control_group['X'].append(X)
                     control_group['Y'].append(Y)
                     control_group['n_visit'].append(len(X))
+                    
+                    patient_demo = demo[demo.ENROLID == int(id_)]
+                    case_group['age'].append(patient_demo['DOBYR'].item())
+                    case_group['gender'].append(patient_demo['SEX'].item())
 
             
         
@@ -113,7 +127,7 @@ def get_cases(df, batch_ids, target_dict, mapping, config):
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument('--path', default = './data/',type=str)
-    args.add_argument('--save_dir', default = './data_npy_hf_st/',type=str)
+    args.add_argument('--save_dir', default = './data_npy/',type=str)
     args.add_argument('--n_visits', default = 10,type=int)
     args.add_argument('--n_split', type=int)
     args.add_argument('--fold_id', type=int)
@@ -121,15 +135,9 @@ if __name__ == "__main__":
     config = args.parse_args()
     
     target_dict = {
-        '9': {
-            'HF': ['425', '428', '40201', '40211', '40291', '40401', '40403', '40411', '40413', '40491', '40493', 'K77'],
-            'ST': ['4380', '4381', '4382', '4383', '4384', '4385', '4386', '4387', '4388', '4389', 'V1254']
+        'HF': ['I11', 'I13', 'I50', 'I42', 'K77'],
+        'ST': ['Z8673', 'I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I68', 'I69', 'G458', 'G459']
 
-        },
-        '0':{
-            'HF': ['I11', 'I13', 'I50', 'I42', 'K77'],
-            'ST': ['Z8673', 'I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I68', 'I69', 'G458', 'G459']
-        }
     }
     
     mapping = pd.read_csv('icd9to10.csv')[['icd9cm', 'icd10cm']]
@@ -140,6 +148,8 @@ if __name__ == "__main__":
     all_ids = df.ENROLID.unique()
     batch_size = len(all_ids)//config.n_split
     
+    demo = pd.read_csv('demo.csv')
+    
     if config.fold_id == config.n_split-1:
         batch_ids= all_ids[config.fold_id*batch_size:]
     else:
@@ -147,5 +157,5 @@ if __name__ == "__main__":
 
     print(f'all unique id: {len(all_ids)}, n split: {config.n_split}, batch size: {batch_size}, batch size: {len(batch_ids)}')
     
-    get_cases(df, batch_ids, target_dict, mapping, config)
+    get_cases(df, batch_ids, target_dict, mapping, config, demo)
  
