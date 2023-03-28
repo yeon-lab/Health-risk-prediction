@@ -29,38 +29,38 @@ class Dipole(nn.Module):
         self.out = nn.Linear(self.day_dim, self.output_dim)
 
     def attentionStep(self, h_0):
-        day_emb = self.day_emb  # 取出前n-1步输入
+        day_emb = self.day_emb 
         rnn_h = self.gru(day_emb, h_0)[0]
-        day_emb_reverse = self.day_emb.flip(dims=[0])   # 取出前n-1步，反向
+        day_emb_reverse = self.day_emb.flip(dims=[0])  
         rnn_h_reverse = self.gru_reverse(day_emb_reverse, h_0)[0]
 
-        rnn_h = torch.cat((rnn_h, rnn_h_reverse), 2)    # 按特征维度进行拼接，shape=(seq_len, batch_size, 2*hidden_size)
+        rnn_h = torch.cat((rnn_h, rnn_h_reverse), 2)    # shape=(seq_len, batch_size, 2*hidden_size)
 
-        Alpha = self.attn(rnn_h)    # 线性降维，shape=(seq_len, batch_size, 1)
-        Alpha = torch.squeeze(Alpha, dim=2)     # 消除多余维度，shape=(seq_len, batch_size)
+        Alpha = self.attn(rnn_h)  
+        Alpha = torch.squeeze(Alpha, dim=2)     # shape=(seq_len, batch_size)
         Alpha = torch.transpose(F.softmax(torch.transpose(Alpha, 0, 1)), 0, 1) 
 
-        attn_applied = Alpha.unsqueeze(2) * rnn_h   # 增加维度，使alpha可以与rnn相乘, shape=(seq_len, batch_size, 2*hidden_size)
-        c_t = torch.mean(attn_applied, 0)   # 按时间维度聚合，shape=(batch_size, 2*hidden_size)
-        h_t = torch.cat((c_t, rnn_h[-1]), dim=1)    # 按特征维度拼接，shape=(batch_size, 4*hidden_size)
+        attn_applied = Alpha.unsqueeze(2) * rnn_h  
+        c_t = torch.mean(attn_applied, 0)  
+        h_t = torch.cat((c_t, rnn_h[-1]), dim=1)    # shape=(batch_size, 4*hidden_size)
 
-        h_t_out = self.attn_out(h_t)    # attention输出降维，shape=(batch_size, day_dim)
+        h_t_out = self.attn_out(h_t)    # shape=(batch_size, day_dim)
         return h_t_out
 
     def forward(self, x):
         # x = torch.tensor(x)
-        # embedding层
+        # embedding
         batch_size = x.shape[1]
         h_0 = self.initHidden(batch_size)
         self.day_emb = self.day_embedding(x)    # shape=(seq_len, batch_size, day_dim)
 
-        # LSTM层
+        # LSTM
         if self.keep_prob < 1.0:
             self.day_emb = self.dropout(self.day_emb)
 
-        h_t_out = self.attentionStep(h_0) # shape=(batch_size, day_dim)
+        h_t_out = self.attentionStep(h_0) 
 
-        y_hat = self.out(h_t_out)   # shape=(batch_size, out_dim)
+        y_hat = self.out(h_t_out)   
         y_hat = F.softmax(y_hat, dim=1)    # shape=(batch_size, out_dim)
 
         return y_hat
