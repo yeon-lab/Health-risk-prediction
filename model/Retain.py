@@ -8,10 +8,7 @@ import random
 class RetainNN(nn.Module):
     def __init__(self, config):
         super(RetainNN, self).__init__()
-        """
-        num_embeddings(int): size of the dictionary of embeddings
-        embedding_dim(int) the size of each embedding vector
-        """
+
         #self.emb_layer = nn.Embedding(num_embeddings=params["num_embeddings"], embedding_dim=params["embedding_dim"])
         params = config['hyper_params']
         
@@ -43,25 +40,10 @@ class RetainNN(nn.Module):
         
         batch_size = input.shape[1]
         var_rnn_hidden, visit_rnn_hidden = self.initHidden(batch_size)
-        # emb_layer: input(*): LongTensor of arbitrary shape containing the indices to extract
-        # emb_layer: output(*,H): where * is the input shape and H = embedding_dim
-        # print("size of input:")
-        # print(input.shape)
+
         v = self.emb_layer(input)
-        # print("size of v:")
-        # print(v.shape)
         v = self.dropout(v)
 
-        # GRU:
-        # input of shape (seq_len, batch, input_size)
-        # seq_len: visit_seq_len
-        # batch: batch_size
-        # input_size: embedding dimension
-        #
-        # h_0 of shape (num_layers*num_directions, batch, hidden_size)
-        # num_layers(1)*num_directions(1)
-        # batch: batch_size
-        # hidden_size:
         if self.reverse_rnn_feeding:
             visit_rnn_output, visit_rnn_hidden = self.visit_level_rnn(torch.flip(v, [0]), visit_rnn_hidden)
             alpha = self.visit_level_attention(torch.flip(visit_rnn_output, [0]))
