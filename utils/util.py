@@ -31,33 +31,6 @@ def load_raw(path='./data/'):
     
     return data
     
-
-def load_npy(path = './data_npy/'):
-    case_list = list()
-    control_list = list()
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            if "case" in file:
-                case_list.append(os.path.join(root, file))
-            if "control" in file:
-                control_list.append(os.path.join(root, file))
-                
-    for i, (f_case, f_control) in enumerate(zip(case_list, control_list)):
-        if i == 0:
-            all_cases = np.load(f_case, allow_pickle=True).item()
-            all_controls = np.load(f_control, allow_pickle=True).item()
-        else:
-            case = np.load(f_case, allow_pickle=True).item()
-            control = np.load(f_control, allow_pickle=True).item()
-            for key in all_cases.keys():
-                all_cases[key].extend(case[key])
-            for key in all_controls.keys():
-                all_controls[key].extend(control[key])
-
-    print('case len:', len(all_cases['X']))
-    print('control len:', len(all_controls['X']))
-    return all_cases, all_controls
-    
         
     
 def icd9_to_icd10(dx, mapping):
@@ -78,26 +51,6 @@ def icd9_to_icd10(dx, mapping):
 
     return mapping[dx]
 
-
-def get_dx_list(patient_x, X_DXVER, mapping, DX_col):
-    X = list()
-    for date in patient_x.SVCDATE.unique():
-        record = patient_x[patient_x.SVCDATE == date]
-        x_dxs = sum(record[DX_col].values.tolist(), []) 
-        x_dxs = list(map(str, x_dxs))
-        x_dxs = [x for x in x_dxs if x != 'nan']
-        if X_DXVER == '9':
-            x_dxs_ = list()
-            for x_dx in x_dxs:
-                mapped = icd9_to_icd10(x_dx, mapping)
-                if mapped is not None:
-                    x_dxs_.append(mapped)
-            x_dxs = x_dxs_
-        x_dxs = list(set([x[:3] for x in x_dxs]))
-        if len(x_dxs) != 0:
-            X.append(x_dxs)
-                    
-    return X
     
 class Convert_to_numeric:
     def __init__(self):
