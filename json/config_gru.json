@@ -1,0 +1,36 @@
+{
+    "n_gpu": 1,
+    "arch": {
+        "type": "GRU",
+        "args": {
+        }
+    },
+    "hyper_params":{
+        "max_visit": 50,
+        "n_layer": 2,
+        "valid_ratio": 0.2
+    },
+    "data_loader": {
+        "args":{
+            "batch_size": 32
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001
+            }
+    },
+    "loss": "BCELoss",
+    "metrics": [
+        "accuracy", "roc_auc", "f1", "confusion"
+    ],
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 10,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 5
+    }
+}
