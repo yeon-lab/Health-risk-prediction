@@ -10,7 +10,7 @@ In this study, we propose a new method to address the issue for clinical risk pr
 
 
 ## DREAM
-![Figure2_org](https://user-images.githubusercontent.com/39074545/208546254-11d0bcb9-a573-43ab-9ef6-6039760112bc.png)
+![figure1](https://user-images.githubusercontent.com/39074545/228349521-065e2897-2720-4d30-b9af-ba71f672afdc.png)
 
 
 Figure 1: Illustrations of sample reweighting, clinical risk prediction, and the proposed method. (a) Diagram of clinical risk
