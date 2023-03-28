@@ -9,7 +9,6 @@ from glob import glob
 from tqdm import tqdm
 import os.path
 
-pd.set_option('display.max_columns', None)
 SEED = 1111
 
 def load_raw(path='./data/'):
@@ -175,7 +174,7 @@ def init_data(data_file, npy_path, config):
         np.save(data_file, all_data_) 
         
     all_data_ = pd.DataFrame(all_data_)
-    all_data_9 = all_data_[(all_data_.DXVER == '9') & (all_data_.n_visit < config["hyper_params"]["max_visit"])]
+    all_data_9 = all_data_[(all_data_.DXVER == '9') & (all_data_.n_visit <= config["hyper_params"]["max_visit"])]
     all_data_10 = all_data_[all_data_.DXVER == '0']
     all_data = pd.concat([all_data_9, all_data_10], axis=0).reset_index(drop=True).to_dict('series')  
     
