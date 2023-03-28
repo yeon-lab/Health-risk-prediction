@@ -98,11 +98,11 @@ class BaseTrainer:
                     self._save_checkpoint(epoch, save_best=True)
                     break
 
-            if epoch % self.save_period == 0:
-                self._save_checkpoint(epoch)
+            #if epoch % self.save_period == 0:
+            #    self._save_checkpoint(epoch)
                 
                 
-        self._test_epoch()        
+        return self._test_epoch()  
 
 
     def _prepare_device(self, n_gpu_use):
@@ -143,9 +143,9 @@ class BaseTrainer:
             'monitor_best': self.mnt_best,
             'config': self.config
         }
-        filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
-        torch.save(state, filename)
-        self.logger.info("Saving checkpoint: {} ...".format(filename))
+        # filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
+        # torch.save(state, filename)
+        # self.logger.info("Saving checkpoint: {} ...".format(filename))
         if save_best:
             best_path = str(self.checkpoint_dir / 'model_best.pth')
             torch.save(state, best_path)
@@ -177,7 +177,6 @@ class BaseTrainer:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
         self.logger.info("Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
-
 
 
 
