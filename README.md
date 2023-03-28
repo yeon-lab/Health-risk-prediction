@@ -44,7 +44,7 @@ Hyper-parameters are set in train.py
 >
 * `config`: json file to use.
 * `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
-* `data_file`: data file 
+* `data_file`: data file formatted as *.npy 
 * `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
 * `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
 * `weight_decay`: weight decay when training the predictive model (baseline)
