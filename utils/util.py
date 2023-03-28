@@ -146,32 +146,11 @@ def set_input_data(df):
 
     return all_df
     
-def get_controls(all_cases, all_controls):
-    all_controls = pd.DataFrame(all_controls)
-    all_cases['control_X'] = [pd.NA for _ in range(len(all_cases['X']))]
-    for case_idx in tqdm(range(len(all_cases['X'])), total=len(all_cases['X'])):
-        n_visit = all_cases['n_visit'][case_idx]
-        DXVER = all_cases['DXVER'][case_idx]
-        age = all_cases['age'][case_idx]
-        gender = all_cases['gender'][case_idx]
-        indices = all_controls[(all_controls.n_visit >= n_visit) & (all_controls.DXVER == DXVER) & (all_controls.age == age) & (gender)].index
-        if len(indices) > 0:
-            control_idx = indices[0]
-            all_cases['control_X'][case_idx] = all_controls.loc[control_idx,'X'][:n_visit]
-            all_controls = all_controls.drop(control_idx, axis = 0)
-
-    return all_cases
 
     
-def init_data(data_file, npy_path, config):
-    if os.path.exists(data_file):
-        print('load existing data file')
-        all_data_ = np.load(data_file, allow_pickle=True).item()
-    else:
-        print('No existing file. Save data file')
-        all_cases, all_controls = load_npy(npy_path)
-        all_data_ = get_controls(all_cases, all_controls)
-        np.save(data_file, all_data_) 
+def init_data(data_file, config):
+    
+    all_data_ = np.load(data_file, allow_pickle=True).item()
         
     all_data_ = pd.DataFrame(all_data_)
     all_data_9 = all_data_[(all_data_.DXVER == '9') & (all_data_.n_visit <= config["hyper_params"]["max_visit"])]
