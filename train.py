@@ -98,6 +98,13 @@ if __name__ == '__main__':
     config['hyper_params']['day_dim']= params.day_dim
     config['hyper_params']['rnn_hidden']= params.rnn_hidden       
     
+    if 'mimic' in params.np_data_dir:
+        config['hyper_params']["max_visit"] = 29
+        config['hyper_params']["min_visit"] = 3
+    else:
+        config['hyper_params']["max_visit"] = 30
+        config['hyper_params']["min_visit"] = 10
+    
     dataset, feat_dict, y_dict = init_data(data_file = args2.data_file, npy_path=args2.np_data_dir, config=config)
     config['hyper_params']['n_feat'], config['hyper_params']['n_class'] = len(feat_dict.keys()), len(y_dict.keys())
 
