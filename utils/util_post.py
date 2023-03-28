@@ -12,34 +12,6 @@ import os.path
 pd.set_option('display.max_columns', None)
 SEED = 1111
 
-
-
-def load_npy(path):
-    case_list = list()
-    control_list = list()
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            if "case" in file:
-                case_list.append(os.path.join(root, file))
-            if "control" in file:
-                control_list.append(os.path.join(root, file))
-    print('case_list len:', len(case_list))   
-    print('control_list len:', len(control_list))   
-    for i, (f_case, f_control) in enumerate(zip(case_list, control_list)):
-        if i == 0:
-            all_cases = np.load(f_case, allow_pickle=True).item()
-            all_controls = np.load(f_control, allow_pickle=True).item()
-        else:
-            case = np.load(f_case, allow_pickle=True).item()
-            control = np.load(f_control, allow_pickle=True).item()
-            for key in all_cases.keys():
-                all_cases[key].extend(case[key])
-            for key in all_controls.keys():
-                all_controls[key].extend(control[key])
-
-    print('DX case len:', len(all_cases['DX']))
-    print('DX control len:', len(all_controls['DX']))
-    return all_cases, all_controls
     
 
     
