@@ -1,0 +1,37 @@
+{
+    "n_gpu": 1,
+    "arch": {
+        "type": "Retain",
+        "args": {
+        }
+    },
+    "hyper_params":{
+        "max_visit": 50,
+        "valid_ratio": 0.2,
+        "output_dropout_p": 0.8,
+        "dropout_p": 0.5
+    },
+    "data_loader": {
+        "args":{
+            "batch_size": 32
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001
+            }
+    },
+    "loss": "BCELoss",
+    "metrics": [
+        "accuracy", "roc_auc",  "f1", "confusion"
+    ],
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 10,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 5
+    }
+}
