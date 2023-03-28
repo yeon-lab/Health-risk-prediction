@@ -6,7 +6,6 @@
         }
     },
     "hyper_params":{
-        "max_visit": 50,
         "valid_ratio": 0.2,
         "output_dropout_p": 0.8,
         "dropout_p": 0.5
