@@ -27,7 +27,7 @@ Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and
 
 ### Training and test
 ```python 
-python train.py --config 'json/config_dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64 --np_data_dir "" 
+python train.py --config 'json/config_dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64 --data_file "" 
 ```
 
 ### Hyper-parameters
@@ -44,7 +44,7 @@ Hyper-parameters are set in train.py
 >
 * `config`: json file to use.
 * `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
-* `np_data_dir`: data file formatted as *.npy
+* `data_file`: data file 
 * `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
 * `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
 * `weight_decay`: weight decay when training the predictive model (baseline)
