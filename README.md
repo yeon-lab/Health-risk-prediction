@@ -27,28 +27,24 @@ Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and
 
 ### Training and test
 ```python 
-python train.py --config 'json/config_dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64 --dataset "mimic"
+python train.py --config 'json/config_dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64 --np_data_dir "" 
 ```
 
 ### Hyper-parameters
 Hyper-parameters are set in *.json
 >
-* `max_visit`: the maximum number of visits
 * `type`: the name of the baseline. Provided baselines are from {"Concare", "Dipole", "GRU", "LSTM", "Retain", "Stagenet"}.
 * `early_stop`: the number of epochs for early stopping
 * `monitor`: the criterian for early stopping. The first word is 'min' or 'max', the second one is metric.
 * `metrics`: metrics to print out. It is a list format, and provided metrics are from {"accuracy", "roc_auc", "f1", "confusion"}.
 * `valid_ratio`: the ratio of validation set
-* `beta_d and beta_y`: weights to control KL losses for subject and class, respectively
-* `zd_dim and zy_dim`: output dimensions of subject and class encoders, respectively
-* `aux_loss_d and aux_loss_y`: weights to control auxiliary losses for subject and class, respectively
+
 
 Hyper-parameters are set in train.py
 >
 * `config`: json file to use.
 * `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
-* `time`: prediction window. The time from {90,180,360} is used in the paper.
-* `target`: target disease. The target from {"hf","st"} is used in the paper. 
+* `np_data_dir`: data file formatted as *.npy
 * `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
 * `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
 * `weight_decay`: weight decay when training the predictive model (baseline)
