@@ -18,7 +18,7 @@ def check_target(dx, target_dict, DXVER, mapping):
     return False, None
     
 
-def get_cases(df, batch_ids, target_dict, mapping, config, demo):
+def get_cases(df, all_ids, target_dict, mapping, config, demo):
     n_visits = config.n_visits
 
     DX_col = [col for col in df.columns if 'DX' in col and col != 'DXVER']
@@ -46,7 +46,7 @@ def get_cases(df, batch_ids, target_dict, mapping, config, demo):
     }
     
     control_group_ids = []        
-    for id_ in tqdm(batch_ids, total=len(batch_ids)):
+    for id_ in tqdm(all_ids, total=len(all_ids)):
         is_saved = False
         patient = df[df.ENROLID == id_].reset_index(drop=True)
         
@@ -117,8 +117,8 @@ def get_cases(df, batch_ids, target_dict, mapping, config, demo):
 
             
         
-    np.save(os.path.join(config.save_dir, 'control_group_{}'.format(config.fold_id)), control_group)  
-    np.save(os.path.join(config.save_dir, 'case_group_{}'.format(config.fold_id)), case_group) 
+    np.save(os.path.join(config.save_dir, 'control_group'), control_group)  
+    np.save(os.path.join(config.save_dir, 'case_group'), case_group) 
     
     
 
@@ -129,7 +129,6 @@ if __name__ == "__main__":
     args.add_argument('--path', default = './data/',type=str)
     args.add_argument('--save_dir', default = './data_npy/',type=str)
     args.add_argument('--n_visits', default = 10,type=int)
-    args.add_argument('--n_split', type=int)
     args.add_argument('--fold_id', type=int)
     
     config = args.parse_args()
@@ -150,12 +149,5 @@ if __name__ == "__main__":
     
     demo = pd.read_csv('demo.csv')
     
-    if config.fold_id == config.n_split-1:
-        batch_ids= all_ids[config.fold_id*batch_size:]
-    else:
-        batch_ids= all_ids[config.fold_id*batch_size : (1+config.fold_id)*batch_size]
-
-    print(f'all unique id: {len(all_ids)}, n split: {config.n_split}, batch size: {batch_size}, batch size: {len(batch_ids)}')
-    
-    get_cases(df, batch_ids, target_dict, mapping, config, demo)
+    get_cases(df, all_ids, target_dict, mapping, config, demo)
  
