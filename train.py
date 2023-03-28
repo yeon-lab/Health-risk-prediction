@@ -7,6 +7,8 @@ import model.metric as module_metric
 from parse_config import ConfigParser
 from trainer import Trainer
 from utils.util import *
+from model.sample_weighting import *
+
 from model import *
 
 import torch
