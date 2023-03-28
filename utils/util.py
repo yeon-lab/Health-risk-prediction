@@ -11,45 +11,7 @@ import os.path
 
 SEED = 1111
 
-def load_raw(path='./data/'):
-    outpatient_files = os.listdir(path)
 
-    files = [os.path.join(path, file) for file in outpatient_files]
-    
-    data = pd.DataFrame()
-    for file in files:
-        df = pd.read_csv(file, dtype=str)
-        df = df[~df['DX1'].isnull()]
-        df = df.drop(labels=['PROCTYP','PROC1'],axis=1)
-        df = df.drop_duplicates()
-        data = pd.concat([data,df], axis=0)
-        
-    data = data.replace({'DXVER': np.nan}, {'DXVER': '9'})
-    data.SVCDATE = pd.to_datetime(data.SVCDATE)
-    data.sort_values(by=['ENROLID', 'SVCDATE'], inplace=True)
-    data = data.reset_index(drop=True)
-    
-    return data
-    
-        
-    
-def icd9_to_icd10(dx, mapping):
-    if '.' in dx:
-        dx = dx[:-2]  
-    
-    if dx in mapping.keys():
-        dx = dx
-    elif '0'+dx in mapping.keys():
-        dx = '0'+dx 
-    elif '00'+dx in mapping.keys():
-        dx = '00'+dx
-    elif '000'+dx in mapping.keys():
-        dx = '000'+dx
-    else:
-        print(dx,'not in dict')
-        return None
-
-    return mapping[dx]
 
     
 class Convert_to_numeric:
