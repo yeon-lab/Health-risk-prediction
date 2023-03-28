@@ -6,7 +6,6 @@
         }
     },
     "hyper_params":{
-        "max_visit": 50,
         "valid_ratio": 0.2
     },
     "data_loader": {
