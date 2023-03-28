@@ -27,7 +27,8 @@ Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and
 
 ### Training and test
 ```python 
-python train.py --fold_id=0 --np_data_dir "data_npz/edf_20_fpzcz" --config "config.json"
+python train.py --config 'json/config_dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64 --dataset "mimic"
+> 
 ```
 
 ### Hyper-parameters
@@ -46,7 +47,7 @@ Hyper-parameters are set in *.json
 Hyper-parameters are set in train.py
 >
 * `config`: json file to use.
-* `version`: from {"basic", "weighted"}. "Basic" and "weighted" are to run the baseline and our model, respectively.
+* `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
 * `time`: prediction window. The time from {90,180,360} is used in the paper.
 * `target`: target disease. The target from {"hf","st"} is used in the paper. 
 * `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
