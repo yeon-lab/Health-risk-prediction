@@ -3,7 +3,6 @@ import numpy as np
 import argparse
 from tqdm import tqdm
 import os 
-from utils.util import *
 
 
 def get_controls(all_cases, all_controls):
@@ -29,6 +28,47 @@ def get_controls(all_cases, all_controls):
             all_controls = all_controls.drop(control_idx, axis = 0)
     return all_cases
 
+def load_raw(path='./data/'):
+    outpatient_files = os.listdir(path)
+
+    files = [os.path.join(path, file) for file in outpatient_files]
+    
+    data = pd.DataFrame()
+    for file in files:
+        df = pd.read_csv(file, dtype=str)
+        df = df[~df['DX1'].isnull()]
+        df = df.drop(labels=['PROCTYP','PROC1'],axis=1)
+        df = df.drop_duplicates()
+        data = pd.concat([data,df], axis=0)
+        
+    data = data.replace({'DXVER': np.nan}, {'DXVER': '9'})
+    data.SVCDATE = pd.to_datetime(data.SVCDATE)
+    data.sort_values(by=['ENROLID', 'SVCDATE'], inplace=True)
+    data = data.reset_index(drop=True)
+    
+    return data
+    
+
+def icd9_to_icd10(dx, mapping):
+    if '.' in dx:
+        dx = dx[:-2]  
+    
+    if dx in mapping.keys():
+        dx = dx
+    elif '0'+dx in mapping.keys():
+        dx = '0'+dx 
+    elif dx+'0' in mapping.keys():
+        dx = dx+'0'
+    elif '00'+dx in mapping.keys():
+        dx = '00'+dx
+    elif '000'+dx in mapping.keys():
+        dx = '000'+dx
+    else:
+        print(dx,'not in dict')
+        return None
+
+    return mapping[dx]
+
 def check_target(dx, target_dict, DXVER, mapping):
     if DXVER == '9':
         dx = icd9_to_icd10(dx, mapping)
@@ -41,69 +81,32 @@ def check_target(dx, target_dict, DXVER, mapping):
                 return True, key
     return False, None
     
-
-def get_cases(df, all_ids, target_dict, mapping, config, demo):
-    n_visits = config.n_visits
-
-    DX_col = [col for col in df.columns if 'DX' in col and col != 'DXVER']
     
-    case_group = {
-        'ID':[],
-        'DXVER': [],
-        'X': [],
-        'Y': [],
-        'n_visit': [],
-        'X_idx': [],
-        'Y_idx': [],
-        'age': [],
-        'gender':[]
-    }
-
-    control_group = {
-        'ID':[],
-        'DXVER': [],
-        'X': [],
-        'Y': [],
-        'n_visit': [],
-        'age': [],
-        'gender':[]
-    }
-    
-    control_group_ids = []        
-    for id_ in tqdm(all_ids, total=len(all_ids)):
-        is_saved = False
-        patient = df[df.ENROLID == id_].reset_index(drop=True)
-        
-        if len(patient[patient.DXVER == '9'].SVCDATE.unique()) < n_visits:
-            continue
-        elif len(patient[patient.DXVER == '0'].SVCDATE.unique()) < n_visits:
-            continue
-            
-        for i, (_, row) in enumerate(patient.iterrows()):
+def get_code_list(patient_x, mapping, DX_col):
+    DX = list()
+    DATE = list()
+    for date_ in patient_x.SVCDATE.unique():
+        records = patient_x[patient_x.SVCDATE == date_]
+        x_dxs = list()
+        for _, row in records.iterrows():
             DXVER = row['DXVER']
-    
             dxs = list(row[DX_col])
             for dx in dxs:
                 if not pd.isnull(dx):
-                    is_case, target = check_target(dx, target_dict, DXVER, mapping)
-                    if is_case:
-                        break
-    
-            if is_case and i < n_visits:
-                break
-            if is_case and i >= n_visits:
-                if (row['SVCDATE']-patient.SVCDATE[n_visits-1]).days < 365:
-                    break
-                for j in range(i-1, n_visits-2, -1):
-                    if (row['SVCDATE']-patient.SVCDATE[j]).days > 365:
-                        patient_ = patient.iloc[:j+1,:]
-                        for DXVER_ in ['9','0']:
-                            patient_x = patient_[patient_.DXVER==DXVER_]
-                            if len(patient_x.SVCDATE.unique()) >= n_visits:
-                                X = get_dx_list(patient_x, DXVER_, mapping, DX_col)
-                                if len(X) >= n_visits:
-                                    is_saved = True
-                                    Y = target
+                    if DXVER == '9':
+                        mapped = icd9_to_icd10(dx, mapping)
+                        if mapped is not None:
+                            x_dxs.append(mapped[:3])
+                    else:
+                        x_dxs.append(dx[:3])
+            
+        x_dxs = list(set(x_dxs))
+
+        DX.append(x_dxs)
+        DATE.append(pd.to_datetime(date_).strftime('%Y-%m'))
+            
+    return DX, DATE
+
 class Search_cases:
     def __init__(self, target_dict, mapping, config, demo, df, windows=[90, 180, 360], DXVER_list=['0','9']):
         super(Search_cases, self).__init__()
