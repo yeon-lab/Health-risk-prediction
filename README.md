@@ -13,7 +13,9 @@ In this study, we propose a new method to address the issue for clinical risk pr
 ![Figure2_org](https://user-images.githubusercontent.com/39074545/208546254-11d0bcb9-a573-43ab-9ef6-6039760112bc.png)
 
 
-Figure 1: Overall architecture of **DREAM**
+Figure 1: Illustrations of sample reweighting, clinical risk prediction, and the proposed method. (a) Diagram of clinical risk
+prediction. (b) Changes in the distribution of medical codes after sample reweighting to mitigate the distribution shift. (c)
+Architecture of the proposed method for sample reweighting.
 
 ## Installation
 
@@ -29,17 +31,28 @@ python train.py --fold_id=0 --np_data_dir "data_npz/edf_20_fpzcz" --config "conf
 ```
 
 ### Hyper-parameters
-Hyper-parameters are set in config.json
+Hyper-parameters are set in *.json
 >
-* `seq_len`: Length of input sequence for classification network
-* `n_layers`: the number of encoder layers in Transformer
-* `num_folds`: the number of folds for k-fold cross-validation
+* `max_visit`: the maximum number of visits
+* `type`: the name of the baseline. Provided baselines are from {"Concare", "Dipole", "GRU", "LSTM", "Retain", "Stagenet"}.
 * `early_stop`: the number of epochs for early stopping
 * `monitor`: the criterian for early stopping. The first word is 'min' or 'max', the second one is metric.
-* `const_weight`: a weight to control constrastive loss
-* `dim_feedforward`: the dimension of the feedforward network model in Transformer encoder layer
+* `metrics`: metrics to print out. It is a list format, and provided metrics are from {"accuracy", "roc_auc", "f1", "confusion"}.
+* `valid_ratio`: the ratio of validation set
 * `beta_d and beta_y`: weights to control KL losses for subject and class, respectively
 * `zd_dim and zy_dim`: output dimensions of subject and class encoders, respectively
 * `aux_loss_d and aux_loss_y`: weights to control auxiliary losses for subject and class, respectively
 
-
+Hyper-parameters are set in train.py
+>
+* `config`: json file to use.
+* `version`: from {"basic", "weighted"}. "Basic" and "weighted" are to run the baseline and our model, respectively.
+* `time`: prediction window. The time from {90,180,360} is used in the paper.
+* `target`: target disease. The target from {"hf","st"} is used in the paper. 
+* `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
+* `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
+* `weight_decay`: weight decay when training the predictive model (baseline)
+* `steps`: the number of epochs to learn sample weights
+* `step_lr`: learning rate to learn sample weights
+* `kl_dim`: the number of hidden features in Autoencoder
+* `kl_weight and dist_weight`: weights to control KL and MSE losses, respectively
