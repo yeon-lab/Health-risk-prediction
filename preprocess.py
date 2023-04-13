@@ -208,6 +208,8 @@ if __name__ == "__main__":
     args.add_argument('--path', default = './data_market/',type=str)
     args.add_argument('--n_visits', default = 10, type=int)
     args.add_argument('--target', type=str)
+    args.add_argument('--n_split', type=int)
+    args.add_argument('--fold_id', type=int)
     
     config = args.parse_args()
     
@@ -231,9 +233,15 @@ if __name__ == "__main__":
     
     demo = pd.read_csv('demo.csv', dtype=str)
     
+    if config.fold_id == config.n_split-1:
+        batch_ids= all_ids[config.fold_id*batch_size:]
+    else:
+        batch_ids= all_ids[config.fold_id*batch_size : (1+config.fold_id)*batch_size]
+    
+    print(f'all unique id: {len(all_ids)}, n split: {config.n_split}, batch size: {batch_size}, batch size: {len(batch_ids)}')
     
     search_data = SearchData(df, target_list, mapping, demo, config)
-    search_data.forward(all_ids)
+    search_data.forward(batch_ids)
     
 
  
