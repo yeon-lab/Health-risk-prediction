@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/528558222.svg)](https://zenodo.org/badge/latestdoi/528558222)
+
 # Stable Clinical Risk Prediction against Distribution Shift in Electronic Health Records
 
 ## Introduction
