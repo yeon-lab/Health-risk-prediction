@@ -1,4 +1,3 @@
-[![DOI](https://zenodo.org/badge/528558222.svg)](https://zenodo.org/badge/latestdoi/528558222)
 
 # Stable Clinical Risk Prediction against Distribution Shift in Electronic Health Records
 
@@ -11,7 +10,7 @@ In this study, we propose a new method to address the issue for clinical risk pr
 
 
 
-## DREAM
+## Overview
 ![figure1](https://user-images.githubusercontent.com/39074545/228349521-065e2897-2720-4d30-b9af-ba71f672afdc.png)
 
 
