@@ -20,7 +20,7 @@ Architecture of the proposed method for sample reweighting.
 
 ## Installation
 
-Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and pytorch_metric_learning. You must have them installed before using our model.
+Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and torchmetrics. You must have them installed before using our model.
 
 
 
