@@ -4,12 +4,12 @@ from pathlib import Path
 from functools import reduce, partial
 from operator import getitem
 from datetime import datetime
-from logger import setup_logging
+from utils.logger import setup_logging
 from utils import read_json, write_json
 
 
 class ConfigParser:
-    def __init__(self, config, resume=None, modification=None, run_id=None):
+    def __init__(self, config, exper_name, resume=None, modification=None, run_id=None):
         """
         class to parse configuration json file. Handles hyperparameters for training, initializations of modules, checkpoint saving
         and logging module.
@@ -25,15 +25,14 @@ class ConfigParser:
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config['trainer']['save_dir'])
 
-        exper_name = self.config['name']
         if run_id is None:  # use timestamp as default run-id
             run_id = datetime.now().strftime('%d_%m_%Y_%H_%M_%S')
 
         self._save_dir = save_dir / exper_name / run_id
         self._log_dir = save_dir / exper_name / run_id
-
-        # make directory for saving checkpoints and log.
+        ###########################
         exist_ok = run_id == ''
+        ###########################
         self.save_dir.mkdir(parents=True, exist_ok=exist_ok)
         #self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
 
@@ -49,7 +48,7 @@ class ConfigParser:
         }
 
     @classmethod
-    def from_args(cls, args, options=''):
+    def from_args(cls, args, exper_name, options=''):
         """
         Initialize this class from some cli arguments. Used in train, test.
         """
@@ -76,7 +75,7 @@ class ConfigParser:
 
         # parse custom cli options into dictionary
         modification = {opt.target: getattr(args, _get_opt_name(opt.flags)) for opt in options}
-        return cls(config, resume, modification)
+        return cls(config, exper_name, resume, modification)
 
     def init_obj(self, name, module, *args, **kwargs):
         """
