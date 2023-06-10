@@ -38,19 +38,25 @@ The detailed descriptions of each variable in the dataset can be found in the RE
 
 
 ### Preprocessing dataset
+The provided dummy dataset serves solely as a reference for the input data format. 
+It is not possible to execute the model training code using the preprocessed data from the provided dataset. 
+Please utilize the preprocessed data provided in the "pickles" folder to execute the model training code.
 
 ```python 
-python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
+python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 360 --min_visits 10
 ```
 >
-Note: 360 prediction windows is not possible in the provided dummy dataset.
 * `input_dir`: path to datset.
 * `pred_windows`: prediction windows.
 * `min_visits`: minimum number of visits for each patient.
 
 ## Training and test
 ### Python command
+
 ```python 
+# Note: Here's just a demo case for parameter selection. They can be easily adjusted for different application scenario. 
+# Note: To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'.
+
 python train.py --config 'json/Dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
 ```
 
