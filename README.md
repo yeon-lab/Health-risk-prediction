@@ -21,6 +21,13 @@ Architecture of the proposed method for sample reweighting.
 ## Installation
 
 Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and torchmetrics. You must have them installed before using our model.
+>
+Python 3.9
+Pytorch 1.10.2
+torchmetrics 0.11.4
+Numpy 1.21.2
+Pandas 1.4.4
+Scikit-learn 1.0.2
 
 
 
@@ -63,19 +70,19 @@ Hyper-parameters are set in config/*.json
 >
 * `early_stop`: the number of epochs for early stopping
 * `monitor`: the criterian for early stopping. The first word is 'min' or 'max', the second one is metric
-* `metrics`: metrics to print out. It is a list format, and provided metrics are from {"accuracy", "roc_auc", "f1", "confusion"}
+* `metrics`: metrics to print out. It is a list format.
 * `valid_ratio`: the ratio of validation set
 
 
 Hyper-parameters are set in train.py
 >
-* `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
-* `model`: baseline model from {'GRU','LSTM','Dipole','Retain','Stagenet','Concare','DG','AdaDiag'}
+* `version`: from {'basic', 'weight'}. 'basic' and 'weight' are to run the baseline and our model, respectively.
+* `model`: baseline model from {'GRU', 'LSTM', 'Dipole', 'Retain', 'Stagenet', 'Concare', 'DG', 'AdaDiag'}
 * `config`: json file to use
 * `target`: target disease related to the input data
 * `time`: prediction window related to the input data
-* `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
-* `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
+* `day_dim`: the dimension of the embedding layer. It works for {'Dipole', 'GRU', 'LSTM'}
+* `rnn_hidden`: the number of hidden features in recurrent layers. It works for {'Dipole', 'GRU', 'LSTM', 'Retain'}
 * `weight_decay`: weight decay when training the predictive model (baseline)
 * `steps`: the number of epochs to learn sample weights
 * `step_lr`: learning rate to learn sample weights
