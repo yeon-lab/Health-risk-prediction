@@ -12,7 +12,7 @@ import model.models as model_arch
 import model.metric as module_metric
 from utils.parse_config import ConfigParser
 from trainer import Trainer
-from model.sampling_weight import *
+from model.sample_weighting import *
 from utils.load_data import init_data
 
 def main(params, config, dataset, version):
