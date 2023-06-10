@@ -1,7 +1,6 @@
 from tqdm import tqdm
 import pandas as pd
 
-
 def select_cohort(cases, controls):
     saved_case_idx = []
     saved_control_idx = []
