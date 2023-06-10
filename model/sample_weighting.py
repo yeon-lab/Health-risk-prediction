@@ -7,6 +7,7 @@ import torch.distributions as dist
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
+from model.utils import auto_encoder
 
 SEED = 1111
 torch.manual_seed(SEED)
@@ -26,32 +27,6 @@ def padMatrix(seqs, n_feat, maxlen=None):
         for xvec, subseq in zip(x[idx, :, :], seq):
             xvec[subseq] = 1.
     return x
-        
-class auto_encoder(nn.Module):
-    def __init__(self, n_feat, kl_dim, hidden_dim=128):
-        super(auto_encoder, self).__init__()
-        self.encoder = nn.Sequential( 
-            nn.Linear(n_feat, hidden_dim), 
-            nn.ReLU(),
-            nn.Linear(hidden_dim, kl_dim), 
-        )
-        self.decoder = nn.Sequential( 
-            nn.Linear(kl_dim, hidden_dim), 
-            nn.ReLU(),
-            nn.Linear(hidden_dim, n_feat), 
-            nn.Sigmoid(),
-        )
-    def forward(self, x):
-        output = self.encoder(x)
-        output = self.decoder(F.relu(output)) 
-        return output
-        
-    def weights_init(self):
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                torch.nn.init.uniform_(m.weight, -0.1, 0.1)
-                if m.bias is not None:
-                    m.bias.data.zero_()
 
 class Autoencoder(nn.Module):
     def __init__(self, n_feat, kl_dim, epochs=1000, lr=0.001, batch_size=512):
