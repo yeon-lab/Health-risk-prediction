@@ -3,6 +3,7 @@ The data analyzed in this paper is MarketScan Commercial Claims and Encounters w
 ***Please note that the dataset provided here is entirely composed of randomly generated example data. As a result, any experimental findings or results derived from it are not considered meaningful or significant.***
 
 
+***
 
 #### Data description
 1. Cohort.csv contains all the patients with at least 1 year insurance enrollment history after 1st time CAD encounter.
