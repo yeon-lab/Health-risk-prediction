@@ -40,11 +40,11 @@ The detailed descriptions of each variable in the dataset can be found in the RE
 ### Preprocessing dataset
 
 ```python 
-python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows [90, 180, 360] --min_visits 10
+python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
 ```
 >
 * `input_dir`: path to datset.
-* `pred_windows`: a list of prediction windows.
+* `pred_windows`: prediction windows.
 * `min_visits`: minimum number of visits for each patient.
 
 ## Training and test
