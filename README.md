@@ -52,12 +52,10 @@ python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 
 
 ## Training and test
 ### Python command
-
+To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'.
 ```python 
 # Note: Here's just a demo case for parameter selection. They can be easily adjusted for different application scenario. 
-# Note: To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'.
-
-python train.py --config 'json/Dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
+python train.py --config 'json/Dipole.json' --time 90 --day_dim 100 --rnn_hidden 100 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'HF' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
 ```
 
 ### Parameters
