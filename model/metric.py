@@ -10,7 +10,7 @@ def accuracy(target, output):
 
 def auroc(target, output):
     target = target.long()
-    auroc_func = AUROC(task="binary")
+    auroc_func = AUROC(pos_label=1)
     return auroc_func(output, target).cpu().numpy()
     
 def auprc(target, output):
