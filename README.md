@@ -46,9 +46,9 @@ For your convenience, a demo version of the input data can be found in the data 
 The detailed descriptions of each variable in the dataset can be found in the README.md in the data folder. Please refer to the README.md for comprehensive explanations of the dataset variables. 
 
 ### Preprocess
-The provided dummy dataset serves solely as a reference for the input data format. 
-It is not possible to execute the model training code using the preprocessed data from the provided dataset. 
-Please utilize the preprocessed data provided in the "pickles" folder to execute the model training code.
+The demo dataset serves solely as a reference for the input data format. 
+It is not possible to run the training code using preprocessed data from the demo dataset. 
+Please utilize the preprocessed data provided in the "pickles" folder to run the training code.
 
 ```python 
 python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
@@ -62,7 +62,7 @@ python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 
 
 ## Training and test
 ### Python command
-To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'
+To run the training code using the provided data, please use the parameters --time 90 and --target 'HF'
 ```python 
 # Note: Here's just a demo case for parameter selection. They can be easily adjusted for different application scenario. 
 python train.py --config 'json/Dipole.json' --model 'Dipole' --target 'HF' --version 'weight' --time 90 --day_dim 100 --rnn_hidden 100 --steps 500 --weight_decay 0.001 --step_lr 0.001 --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
