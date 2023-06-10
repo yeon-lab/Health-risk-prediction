@@ -9,11 +9,10 @@ from save_case_control_cohort import select_cohort
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='process parameters')
-    parser.add_argument('--input_dir', default='data', type=str, help='input data directory')
-    parser.add_argument('--pkl_dir', default='pickles', type=str)
-    parser.add_argument('--demo', default='data/demo.csv', type=str)
+    parser.add_argument('--input_dir', type=str, help='input data directory')
+    parser.add_argument('--pkl_dir', default='pickles', type=str, help='path to save the preprocessed data')
     parser.add_argument('--mapping', default='preprocess/icd9to10.csv', type=str)
-    parser.add_argument('--pred_windows', default=[90, 180, 360])
+    parser.add_argument('--pred_windows', nargs='+', type=int, help='list of prediction windows')
     parser.add_argument('--min_visits', default=10, type=int)
     args = parser.parse_args()
         
@@ -22,7 +21,8 @@ if __name__ == '__main__':
         
     mapping_dict = pd.read_csv(args.mapping)[['icd9cm', 'icd10cm']]
     mapping_dict = dict(mapping_dict.values.tolist())
-    demo = pd.read_csv(args.demo)
+    demo = pd.read_csv(os.path.join(args.input_dir, 'demo.csv'))
+    
     
     target_dict =   {
         'HF': ['I11', 'I13', 'I50', 'I42', 'K77'],
@@ -31,8 +31,8 @@ if __name__ == '__main__':
     print('Save user dx and outcome...', flush=True)
     user_dx, case_cohort = get_user_dx_outcome(args, mapping_dict, target_dict)
     print(f'Preprocess input cohort...', flush=True)
-    save_input_cohort(args, user_dx, case_cohort, demo)
-    
+    for target in target_dict.keys():
+        save_input_cohort(args, user_dx, case_cohort, demo, target)
     
     for target in target_dict.keys():
         for window in args.pred_windows:
