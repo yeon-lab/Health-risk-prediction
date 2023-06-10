@@ -49,45 +49,44 @@ def get_user_dx_outcome(args, mapping_dict, target_dict):
     
     files = os.listdir(args.input_dir)
     for file in files:
-        if 'demo' in file:
-            continue
-        input_file = os.path.join(args.input_dir, file)
-        inpat = pd.read_csv(input_file, dtype=str)
-        print(f'load {input_file}...', flush=True)
-    
-        DATE_NAME = [col for col in inpat.columns if 'DATE' in col][0]
-        DX_col = [col for col in inpat.columns if 'DX' in col and col != 'DXVER']
-        
-        DXVER_col = False            
-        if 'DXVER' in inpat.columns:
-            DXVER_col = True
-        
-        inpat = inpat[~inpat[DATE_NAME].isnull()]
-        inpat = inpat[~inpat['DX1'].isnull()]
-        
-        for index, row in tqdm(inpat.iterrows(), total=len(inpat)):
-            dxs = list(row[DX_col])
-            enrolid = row['ENROLID']
-            date = row[DATE_NAME]
-            date = datetime.strptime(str(date), '%m/%d/%Y')
-            DXVER = '9'
-            if DXVER_col:  # files after 2015: a mix usage of both ICD-9 codes andd ICD-10 codes;
-                DXVER = row['DXVER']
-            if DXVER == '':
-                continue
-        
-            dxs, valid_target = get_code_list(dxs, DXVER, mapping_dict, target_dict)  
-            
-            for target in list(set(valid_target)):
-                case_cohort[target][enrolid].append(date)
-        
-            if enrolid not in user_dx:
-                user_dx[enrolid][date] = dxs
-            else:
-                if date not in user_dx[enrolid]:
+        if 'inpat' in file or 'outpat' in file :
+            input_file = os.path.join(args.input_dir, file)
+            inpat = pd.read_csv(input_file, dtype=str)
+            print(f'load {input_file}...', flush=True)
+
+            DATE_NAME = [col for col in inpat.columns if 'DATE' in col][0]
+            DX_col = [col for col in inpat.columns if 'DX' in col and col != 'DXVER']
+
+            DXVER_col = False            
+            if 'DXVER' in inpat.columns:
+                DXVER_col = True
+
+            inpat = inpat[~inpat[DATE_NAME].isnull()]
+            inpat = inpat[~inpat['DX1'].isnull()]
+
+            for index, row in tqdm(inpat.iterrows(), total=len(inpat)):
+                dxs = list(row[DX_col])
+                enrolid = row['ENROLID']
+                date = row[DATE_NAME]
+                date = datetime.strptime(str(date), '%m/%d/%Y')
+                DXVER = '9'
+                if DXVER_col:  # files after 2015: a mix usage of both ICD-9 codes andd ICD-10 codes;
+                    DXVER = row['DXVER']
+                if DXVER == '':
+                    continue
+
+                dxs, valid_target = get_code_list(dxs, DXVER, mapping_dict, target_dict)  
+
+                for target in list(set(valid_target)):
+                    case_cohort[target][enrolid].append(date)
+
+                if enrolid not in user_dx:
                     user_dx[enrolid][date] = dxs
                 else:
-                    user_dx[enrolid][date].extend(dxs)
+                    if date not in user_dx[enrolid]:
+                        user_dx[enrolid][date] = dxs
+                    else:
+                        user_dx[enrolid][date].extend(dxs)
 
     print('Preprocessing completed..', flush=True)
                
