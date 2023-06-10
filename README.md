@@ -24,20 +24,37 @@ Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and
 
 
 
-## Usage
+## Preprocessing data
+
+### Dataset
+Please be informed that the dataset utilized in this study is derived from MarketScan claims data. To obtain access to the data, interested parties are advised to contact IBM through the following link: [Insert link for data access].
+
+### Input data demo
+For your convenience, a demo version of the input data can be found in the data folder. It includes the data structures and a synthetic demonstration of the inputs. Prior to executing the preprocessing codes, please ensure that the format of your input data matches the format provided in the input demo. 
+
+The detailed descriptions of each variable in the dataset can be found in the README.md in the data folder. Please refer to the README.md for comprehensive explanations of the dataset variables. 
+
+### Parameters
+
 
 ### Preprocessing dataset
-```python 
-python preprocess/run_preprocessing.py
-```
 
-### Training and test
+```python 
+python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows [90, 180, 360] --min_visits 10
+```
+>
+* `input_dir`: path to datset.
+* `pred_windows`: a list of prediction windows.
+* `min_visits`: minimum number of visits for each patient.
+
+## Training and test
+### Python command
 ```python 
 python train.py --config 'json/Dipole.json' --time 360 --day_dim 100 --rnn_hidden 200 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'hf' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
 ```
 
-### Hyper-parameters
-Hyper-parameters are set in *.json
+### Parameters
+Hyper-parameters are set in config/*.json
 >
 * `type`: the name of the baseline. Provided baselines are from {"Concare", "Dipole", "GRU", "LSTM", "Retain", "Stagenet"}.
 * `early_stop`: the number of epochs for early stopping
