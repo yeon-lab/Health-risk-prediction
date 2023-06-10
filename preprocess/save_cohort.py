@@ -5,9 +5,8 @@ from tqdm import tqdm
 import pandas as pd
 import pickle
 
-def save_input_cohort(args, user_dx, case_cohort, demo):
+def save_input_cohort(args, user_dx, case_cohort, demo, target):
     pred_windows = args.pred_windows
-    target = args.target
     
     saved_cohort = dict()
     for window in pred_windows:
