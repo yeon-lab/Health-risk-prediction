@@ -8,6 +8,31 @@ import copy
 n_gpu = torch.cuda.device_count()
 device = torch.device('cuda:0' if n_gpu > 0 else 'cpu')
 
+class auto_encoder(nn.Module):
+    def __init__(self, n_feat, kl_dim, hidden_dim=128):
+        super(auto_encoder, self).__init__()
+        self.encoder = nn.Sequential( 
+            nn.Linear(n_feat, hidden_dim), 
+            nn.ReLU(),
+            nn.Linear(hidden_dim, kl_dim), 
+        )
+        self.decoder = nn.Sequential( 
+            nn.Linear(kl_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Linear(hidden_dim, n_feat), 
+            nn.Sigmoid(),
+        )
+    def forward(self, x):
+        output = self.encoder(x)
+        output = self.decoder(F.relu(output)) 
+        return output
+        
+    def weights_init(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                torch.nn.init.uniform_(m.weight, -0.1, 0.1)
+                if m.bias is not None:
+                    m.bias.data.zero_()
 
 class SingleAttention(nn.Module):
     def __init__(self, attention_input_dim, attention_hidden_dim, attention_type='add', demographic_dim=12, time_aware=False, use_demographic=False):
@@ -125,22 +150,7 @@ class SingleAttention(nn.Module):
             dot_product = torch.matmul(q, k.transpose(1, 2)).squeeze() # b t
             denominator =  self.sigmoid(self.rate) * (torch.log(2.72 +  (1-self.sigmoid(dot_product)))* (b_time_decays.squeeze()))
             e = self.relu(self.sigmoid(dot_product)/(denominator)) # b * t
-#          * (b_time_decays.squeeze())
-        # e = torch.exp(e - torch.max(e, dim=-1, keepdim=True).values)
-        
-        # if self.attention_width is not None:
-        #     if self.history_only:
-        #         lower = torch.arange(0, time_step).to(device) - (self.attention_width - 1)
-        #     else:
-        #         lower = torch.arange(0, time_step).to(device) - self.attention_width // 2
-        #     lower = lower.unsqueeze(-1)
-        #     upper = lower + self.attention_width
-        #     indices = torch.arange(0, time_step).unsqueeze(0).to(device)
-        #     e = e * (lower <= indices).float() * (indices < upper).float()
-        
-        # s = torch.sum(e, dim=-1, keepdim=True)
-        # mask = subsequent_mask(time_step).to(device) # 1 t t 下三角
-        # scores = e.masked_fill(mask == 0, -1e9)# b t t 下三角
+
         a = self.softmax(e) #B*T
         v = torch.matmul(a.unsqueeze(1), input).squeeze() #B*I
 
@@ -239,23 +249,6 @@ class PositionwiseFeedForward(nn.Module): # new added
     def forward(self, x):
         return self.w_2(self.dropout(F.relu(self.w_1(x)))), None
 
-# class PositionwiseFeedForwardConv(nn.Module):
-
-#     def __init__(self, model_dim=512, ffn_dim=2048, dropout=0.0):
-#         super(PositionalWiseFeedForward, self).__init__()
-#         self.w1 = nn.Conv1d(model_dim, ffn_dim, 1)
-#         self.w2 = nn.Conv1d(model_dim, ffn_dim, 1)
-#         self.dropout = nn.Dropout(dropout)
-#         self.layer_norm = nn.LayerNorm(model_dim)
-
-#     def forward(self, x):
-#         output = x.transpose(1, 2)
-#         output = self.w2(F.relu(self.w1(output)))
-#         output = self.dropout(output.transpose(1, 2))
-
-#         # add residual and norm layer
-#         output = self.layer_norm(x + output)
-#         return output
 
 class PositionalEncoding(nn.Module): # new added / not use anymore
     "Implement the PE function."
