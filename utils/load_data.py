@@ -12,12 +12,12 @@ def init_data(data_file, config):
     cohort = pd.DataFrame(cohort)
     cohort = cohort[(cohort.n_visit>=config['hyper_params']["min_visit"]) & (cohort.n_visit<=config['hyper_params']["max_visit"])]
     
-    if config['hyper_params']['version']  == 'DG':
-        if config['hyper_params']['model'] == 'AdaDiag':
-            trainset, reweight, test = split_dataset_DA(all_data)
-        else:
-            trainset, reweight, test = split_dataset_DG(all_data)
-            config["hyper_params"]["n_domains"] = 5  
+    if config['hyper_params']['model'] == 'AdaDiag':
+        trainset, reweight, test = split_data_DA(cohort)
+        config["hyper_params"]["n_domains"] = 2
+    elif config['hyper_params']['model'] == 'DG':
+        trainset, reweight, test = split_data_DG(cohort)
+        config["hyper_params"]["n_domains"] = 5  
     else:
         trainset, reweight, test = split_data(cohort)
         
@@ -65,4 +65,4 @@ def init_data(data_file, config):
         'reweight': reweight
     }
 
-    return dataset, convert_numeric.feat_dict, convert_numeric.y_dict
+    return dataset, config, convert_numeric.feat_dict, convert_numeric.y_dict
