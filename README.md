@@ -22,12 +22,12 @@ Architecture of the proposed method for sample reweighting.
 
 Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and torchmetrics. You must have them installed before using our model.
 >
-Python 3.9
-Pytorch 1.10.2
-torchmetrics 0.11.4
-Numpy 1.21.2
-Pandas 1.4.4
-Scikit-learn 1.0.2
+* Python 3.9
+* Pytorch 1.10.2
+* torchmetrics 0.11.4
+* Numpy 1.21.2
+* Pandas 1.4.4
+* Scikit-learn 1.0.2
 
 
 
@@ -41,10 +41,7 @@ For your convenience, a demo version of the input data can be found in the data 
 
 The detailed descriptions of each variable in the dataset can be found in the README.md in the data folder. Please refer to the README.md for comprehensive explanations of the dataset variables. 
 
-### Parameters
-
-
-### Preprocessing dataset
+### Preprocess
 The provided dummy dataset serves solely as a reference for the input data format. 
 It is not possible to execute the model training code using the preprocessed data from the provided dataset. 
 Please utilize the preprocessed data provided in the "pickles" folder to execute the model training code.
@@ -52,6 +49,8 @@ Please utilize the preprocessed data provided in the "pickles" folder to execute
 ```python 
 python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
 ```
+
+### Parameters
 >
 * `input_dir`: path to datset.
 * `pred_windows`: prediction windows.
