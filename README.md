@@ -43,7 +43,7 @@ It is not possible to execute the model training code using the preprocessed dat
 Please utilize the preprocessed data provided in the "pickles" folder to execute the model training code.
 
 ```python 
-python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 360 --min_visits 10
+python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
 ```
 >
 * `input_dir`: path to datset.
@@ -52,30 +52,32 @@ python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 
 
 ## Training and test
 ### Python command
-To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'.
+To execute the model using the provided data, please use the parameters --time 90 and --target 'HF'
 ```python 
 # Note: Here's just a demo case for parameter selection. They can be easily adjusted for different application scenario. 
-python train.py --config 'json/Dipole.json' --time 90 --day_dim 100 --rnn_hidden 100 --steps 500 --weight_decay 0.001 --step_lr 0.001 --target 'HF' --version 'weight' --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
+python train.py --config 'json/Dipole.json' --model 'Dipole' --target 'HF' --version 'weight' --time 90 --day_dim 100 --rnn_hidden 100 --steps 500 --weight_decay 0.001 --step_lr 0.001 --dist_weight 1e+7 --kl_weight 1e+4 --kl_dim 64
 ```
 
 ### Parameters
 Hyper-parameters are set in config/*.json
 >
-* `type`: the name of the baseline. Provided baselines are from {"Concare", "Dipole", "GRU", "LSTM", "Retain", "Stagenet"}.
 * `early_stop`: the number of epochs for early stopping
-* `monitor`: the criterian for early stopping. The first word is 'min' or 'max', the second one is metric.
-* `metrics`: metrics to print out. It is a list format, and provided metrics are from {"accuracy", "roc_auc", "f1", "confusion"}.
+* `monitor`: the criterian for early stopping. The first word is 'min' or 'max', the second one is metric
+* `metrics`: metrics to print out. It is a list format, and provided metrics are from {"accuracy", "roc_auc", "f1", "confusion"}
 * `valid_ratio`: the ratio of validation set
 
 
 Hyper-parameters are set in train.py
 >
-* `config`: json file to use.
 * `version`: from {"basic", "weight"}. "basic" and "weight" are to run the baseline and our model, respectively.
+* `model`: baseline model from {'GRU','LSTM','Dipole','Retain','Stagenet','Concare','DG','AdaDiag'}
+* `config`: json file to use
+* `target`: target disease related to the input data
+* `time`: prediction window related to the input data
 * `day_dim`: the dimension of the embedding layer. It works for {"Dipole", "GRU", "LSTM"}
 * `rnn_hidden`: the number of hidden features in recurrent layers. It works for {"Dipole", "GRU", "LSTM", "Retain"}
 * `weight_decay`: weight decay when training the predictive model (baseline)
 * `steps`: the number of epochs to learn sample weights
 * `step_lr`: learning rate to learn sample weights
-* `kl_dim`: the number of hidden features in Autoencoder
+* `kl_dim`: the number of hidden features in Autoencoder of the proposed method
 * `kl_weight and dist_weight`: weights to control KL and MSE losses, respectively
