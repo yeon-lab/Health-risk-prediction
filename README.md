@@ -43,7 +43,7 @@ The detailed descriptions of each variable in the dataset can be found in the RE
 python preprocess/run_preprocessing.py --input_dir 'data' --pred_windows 90 180 --min_visits 10
 ```
 >
-Note: Having 180 prediction windows is not possible in the dummy dataset.
+***Note: 360 prediction windows is not possible in the provided dummy dataset.***
 * `input_dir`: path to datset.
 * `pred_windows`: prediction windows.
 * `min_visits`: minimum number of visits for each patient.
