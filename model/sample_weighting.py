@@ -8,22 +8,14 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import random
 
-device = torch.device("cuda:0")
-
 SEED = 1111
-random.seed(SEED)
-np.random.seed(SEED)
 torch.manual_seed(SEED)
-torch.cuda.manual_seed_all(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-def weights_init(m):
-    if type(m) == nn.Linear:
-        torch.nn.init.xavier_uniform_(m.weight.data)
-        torch.nn.init.constant_(m.bias.data, 0.0)
+n_gpu = torch.cuda.device_count()
+device = torch.device('cuda:0' if n_gpu > 0 else 'cpu')
 
-                    
 def padMatrix(seqs, n_feat, maxlen=None):
     lengths = np.array([len(seq) for seq in seqs]).astype('int32')
     n_samples = len(seqs)
@@ -53,12 +45,19 @@ class auto_encoder(nn.Module):
         output = self.encoder(x)
         output = self.decoder(F.relu(output)) 
         return output
+        
+    def weights_init(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                torch.nn.init.uniform_(m.weight, -0.1, 0.1)
+                if m.bias is not None:
+                    m.bias.data.zero_()
 
 class Autoencoder(nn.Module):
-    def __init__(self, n_feat, kl_dim, epochs=300, lr=0.001, batch_size=512):
+    def __init__(self, n_feat, kl_dim, epochs=1000, lr=0.001, batch_size=512):
         super(Autoencoder, self).__init__()
         self.model = auto_encoder(n_feat, kl_dim).to(device)
-        self.model.apply(weights_init)
+        self.model.weights_init()
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.criterion = nn.MSELoss()
         self.epochs = epochs
@@ -76,7 +75,7 @@ class Autoencoder(nn.Module):
                 loss.backward()
                 self.optimizer.step()
                 if batch_idx == 0:
-                    if step % 100 == 0 or step == self.epochs:
+                    if step % 100 == 0:
                         print('autoencoder {} step) loss: {}'.format(step, loss.item())) 
                     
     def get_features(self, x):
@@ -109,34 +108,31 @@ def get_train_weigts(x, y, steps, step_lr, n_feat, kl_weight, dist_weight, kl_di
     for step in range(1, steps+1):
         x_code_weighted = relu(weight)*x_code
         x_dist = x_code_weighted.sum(0)/x_code_weighted.sum()
+        loss_dist = mse(x_dist, y_dist)
         
         x_feat_weighted = relu(weight)*x_feat
         x_latent_dist = F.log_softmax(x_feat_weighted.mean(0), dim=0)
-        
-        loss_dist = mse(x_dist, y_dist)
         loss_KL = kl_loss(x_latent_dist, y_latent_dist)
+        
         loss_weight = (relu(weight).sum()-x_n_samples).pow(2)
         
         loss = loss_dist*dist_weight + loss_weight + loss_KL*kl_weight
         optimizer.zero_grad()
         loss.backward(retain_graph=True)
         optimizer.step()
-            
-        if step % 10 == 0  or step == steps:
-            print('{}-th step) loss_dist: {}, loss_weight: {}, loss_KL: {}, w_sum: {}'.format(
-                    step, loss_dist, loss_weight, loss_KL, weight.sum().item()))
+ 
+        if step % 100 == 0:
+            print('{}-th step) loss_dist: {}, loss_weight: {}, loss_KL: {}'.format(
+                    step, loss_dist, loss_weight, loss_KL
+            ))
         
     return relu(weight).cpu().detach().numpy()
     
 
 def reweight_data(data, maxlen, n_feat, steps, step_lr, kl_weight, dist_weight, kl_dim):
-    train = data['train']['DX'].copy().tolist()
-    valid = data['valid']['DX'].copy().tolist()
-    test = data['reweight_test']['DX'].copy().tolist()
-
-    train = padMatrix(train, n_feat, maxlen)
-    valid = padMatrix(valid, n_feat, maxlen)
-    test = padMatrix(test, n_feat, maxlen)
+    train = padMatrix(data['train']['DX'], n_feat, maxlen)
+    valid = padMatrix(data['valid']['DX'], n_feat, maxlen)
+    test = padMatrix(data['reweight']['DX'], n_feat, maxlen)
 
     weights = get_train_weigts(train, test, steps, step_lr, n_feat, kl_weight, dist_weight, kl_dim)
     data['weights'] = weights
