@@ -29,6 +29,10 @@ Our model depends on Numpy, scikit-learn, PyTorch (CUDA toolkit if use GPU), and
 * Pandas 1.4.1
 * Scikit-learn 1.0.2
 
+This command will install all the required libraries and their specified versions.
+```python 
+pip install -r requirements.txt
+```
 
 
 ## Preprocessing data
