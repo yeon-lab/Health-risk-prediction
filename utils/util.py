@@ -49,15 +49,11 @@ def split_data(all_data):
         subset['last_observed_date'] = subset.index
         if year in ['2012', '2013', '2014']:
             trainset = pd.concat([trainset, subset], axis=0)
-        elif year == '2015' and month not in ['12']:
+        elif year == '2015' and month not in ['10', '11', '12']:
             trainset = pd.concat([trainset, subset], axis=0)
-        elif year == '2015' and month in ['12']:
+        elif year == '2015' and month in ['10', '11', '12']:
             reweight = pd.concat([reweight, subset], axis=0)
-        elif year == '2016' and month in ['01','02']:
-            reweight = pd.concat([reweight, subset], axis=0)
-        elif year == '2016' and month not in ['01','02']:
-            test = pd.concat([test, subset], axis=0)
-        elif year in ['2017']:
+        elif year in ['2016', '2017']:
             test = pd.concat([test, subset], axis=0)
 
     return trainset, reweight, test
@@ -74,19 +70,13 @@ def split_data_DA(all_data):
         if year in ['2012','2013', '2014']:
             subset['Domain'] = 0
             trainset = pd.concat([trainset, subset], axis=0)
-        elif year == '2015' and month not in ['11', '12']:
+        elif year == '2015' and month not in ['10', '11', '12']:
             subset['Domain'] = 0
             trainset = pd.concat([trainset, subset], axis=0)
-        elif year == '2015' and month in ['11', '12']:
+        elif year == '2015' and month in ['10', '11', '12']:
             subset['Domain'] = 1
             reweight = pd.concat([reweight, subset], axis=0)
-        elif year == '2016' and month in ['01']:
-            subset['Domain'] = 1
-            reweight = pd.concat([reweight, subset], axis=0)
-        elif year == '2016' and month not in ['01']:
-            subset['Domain'] = 1
-            test = pd.concat([test, subset], axis=0)
-        elif year in ['2017']:
+        elif year in ['2016', '2017']:
             subset['Domain'] = 1
             test = pd.concat([test, subset], axis=0)
     trainset = pd.concat([trainset, reweight], axis=0)
@@ -108,18 +98,19 @@ def split_data_DG(all_data):
         month = date.strftime("%m")
 
         subset['last_observed_date'] = subset.index
-        if year in ['2012','2013', '2014', '2015']:
+        if year in ['2012', '2013', '2014']:
             subset['Domain'] = domain_dict[year]
             trainset = pd.concat([trainset, subset], axis=0)
-        elif year == '2016' and month in ['01']:
+        elif year == '2015' and month not in ['10', '11', '12']:
+            subset['Domain'] = domain_dict[year]
+            trainset = pd.concat([trainset, subset], axis=0)
+        elif year == '2015' and month in ['10', '11', '12']:
             subset['Domain'] = 4
             reweight = pd.concat([reweight, subset], axis=0)
-        elif year == '2016' and month not in ['01']:
+        elif year in ['2016', '2017']:
             subset['Domain'] = 4
             test = pd.concat([test, subset], axis=0)
-        elif year in ['2017']:
-            subset['Domain'] = 4
-            test = pd.concat([test, subset], axis=0)
+
     trainset = pd.concat([trainset, reweight], axis=0)
     return trainset, reweight, test
     
