@@ -24,8 +24,6 @@ def main(params, config, dataset, version):
     model = model(config, criterion)
     model.weights_init()  
 
-    logger = config.get_logger('train') 
-
     # build optimizer
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = config.init_obj('optimizer', torch.optim, model_parameters)
