@@ -25,14 +25,6 @@ def main(params, config, dataset, version):
     model.weights_init()  
 
     logger = config.get_logger('train') 
-    logger.info('='*100)
-    logger.info('    {:25s}: {}'.format("Model", params.model))
-    logger.info("-"*100)
-    for key, value in config['hyper_params'].items():
-        logger.info('    {:25s}: {}'.format(str(key), value))
-    logger.info("-"*100)
-    logger.info(model)
-    logger.info("-"*100)
 
     # build optimizer
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
@@ -78,11 +70,7 @@ if __name__ == '__main__':
     version = params.version
     if params.model == 'AdaDiag' or params.model == 'DG':
         version = 'basic'
-    
-    exper_name = '{}_{}/{}_{}/day_dim_{}_rnn_hidden_{}'.format(params.target, params.time, params.model, version, params.day_dim, params.rnn_hidden)
-    if version == 'weight':
-        exper_name = exper_name + '/steps_{}_step_lr_{}_kl_{}_dist_{}_kl_dim_{}'.format(params.steps, params.step_lr, params.kl_weight, params.dist_weight, params.kl_dim)
-    exper_name += '/iter_{}'.format(iter)    
+    exper_name = '{}_{}'.format(params.target, params.time)
     config = ConfigParser.from_args(args, exper_name)
     config['hyper_params']['model'] = params.model
     config['hyper_params']['day_dim']= params.day_dim
