@@ -17,6 +17,7 @@ torch.backends.cudnn.benchmark = False
 n_gpu = torch.cuda.device_count()
 device = torch.device('cuda:0' if n_gpu > 0 else 'cpu')
 
+
 def padMatrix(seqs, n_feat, maxlen=None):
     lengths = np.array([len(seq) for seq in seqs]).astype('int32')
     n_samples = len(seqs)
@@ -29,7 +30,7 @@ def padMatrix(seqs, n_feat, maxlen=None):
     return x
 
 class Autoencoder(nn.Module):
-    def __init__(self, n_feat, kl_dim, epochs=1000, lr=0.001, batch_size=512):
+    def __init__(self, n_feat, kl_dim, epochs=1000, lr=0.001, batch_size=1024):
         super(Autoencoder, self).__init__()
         self.model = auto_encoder(n_feat, kl_dim).to(device)
         self.model.weights_init()
@@ -72,10 +73,10 @@ def get_train_weigts(x, y, steps, step_lr, n_feat, kl_weight, dist_weight, kl_di
 
     x_feat = autoencoder.get_features(x.to(device))
     y_feat = autoencoder.get_features(y.to(device))
-    y_latent_dist = F.softmax(y_feat.mean(0), dim=0)
+    q = F.softmax(y_feat.mean(0))
 
     mse = nn.MSELoss()
-    kl_loss = nn.KLDivLoss(reduction="batchmean")
+    kl_div = nn.KLDivLoss(reduction="batchmean")
     relu = nn.ReLU()
     
     weight = nn.Parameter(torch.ones(size=(x_n_samples, 1), device=device), requires_grad=True)
@@ -86,9 +87,9 @@ def get_train_weigts(x, y, steps, step_lr, n_feat, kl_weight, dist_weight, kl_di
         loss_dist = mse(x_dist, y_dist)
         
         x_feat_weighted = relu(weight)*x_feat
-        x_latent_dist = F.log_softmax(x_feat_weighted.mean(0), dim=0)
-        loss_KL = kl_loss(x_latent_dist, y_latent_dist)
-        
+        p = F.log_softmax(x_feat_weighted.mean(0))
+        loss_KL = kl_div(p, q)
+
         loss_weight = (relu(weight).sum()-x_n_samples).pow(2)
         
         loss = loss_dist*dist_weight + loss_weight + loss_KL*kl_weight
