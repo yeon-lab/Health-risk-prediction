@@ -5,6 +5,10 @@ import torch.nn.functional as F
 import math
 import copy
 
+SEED = 1111
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 n_gpu = torch.cuda.device_count()
 device = torch.device('cuda:0' if n_gpu > 0 else 'cpu')
 
@@ -15,6 +19,7 @@ class auto_encoder(nn.Module):
             nn.Linear(n_feat, hidden_dim), 
             nn.ReLU(),
             nn.Linear(hidden_dim, kl_dim), 
+            nn.Softmax()
         )
         self.decoder = nn.Sequential( 
             nn.Linear(kl_dim, hidden_dim), 
@@ -24,7 +29,7 @@ class auto_encoder(nn.Module):
         )
     def forward(self, x):
         output = self.encoder(x)
-        output = self.decoder(F.relu(output)) 
+        output = self.decoder(output)
         return output
         
     def weights_init(self):
