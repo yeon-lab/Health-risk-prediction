@@ -9,13 +9,6 @@ from model.utils import PositionalEncoding, clones, FinalAttentionQKV, MultiHead
 
 warnings.filterwarnings('ignore')
 
-SEED = 1111
-random.seed(SEED)
-np.random.seed(SEED)
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-
 n_gpu = torch.cuda.device_count()
 device = torch.device('cuda:0' if n_gpu > 0 else 'cpu')
 
