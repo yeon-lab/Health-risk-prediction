@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ## Preprocessing data
 
 ### Dataset
-Please be informed that the dataset utilized in this study is derived from MarketScan claims data. To obtain access to the data, interested parties are advised to contact IBM through the following link: [Insert link for data access].
+Please be informed that the dataset utilized in this study is derived from MarketScan claims data. To obtain access to the data, interested parties are advised to contact IBM through the following link: [https://www.merative.com/real-world-evidence].
 
 ### Input data demo
 For your convenience, a demo version of the input data can be found in the data folder. It includes the data structures and a synthetic demonstration of the inputs. Prior to executing the preprocessing codes, please ensure that the format of your input data matches the format provided in the input demo. 
