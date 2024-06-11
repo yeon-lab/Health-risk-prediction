@@ -11,7 +11,8 @@ In this study, we propose a new method to address the issue for clinical risk pr
 
 
 ## Overview
-![figure1](https://user-images.githubusercontent.com/39074545/228349521-065e2897-2720-4d30-b9af-ba71f672afdc.png)
+![figure1](https://github.com/yeon-lab/stable-prediction/assets/39074545/007fc2f6-5c7d-40eb-9453-8fd9971ddfa9)
+
 
 
 Figure 1: Illustrations of sample reweighting, clinical risk prediction, and the proposed method. (a) Diagram of clinical risk
